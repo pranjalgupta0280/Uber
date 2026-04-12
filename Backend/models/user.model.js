@@ -35,7 +35,7 @@ userSchema.methods.generateAuthToken = function () {
     return jwt.sign(
         { _id: this._id },
         process.env.JWT_SECRET,
-        { expiresIn: "7d" } // ✅ optional but recommended
+        { expiresIn: "24h" } // ✅ optional but recommended
     );
 };
 userSchema.methods.comparePassword=async function(password)
