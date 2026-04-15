@@ -2,7 +2,6 @@ const axios = require('axios');
 
 // Get Coordinates (Address -> Latitude/Longitude)
 module.exports.getAddressCoordinate = async (address) => {
-    // You can get a free token at LocationIQ.com
     const apiKey = process.env.LOCATIONIQ_API_KEY; 
     const url = `https://us1.locationiq.com/v1/search.php?key=${apiKey}&q=${encodeURIComponent(address)}&format=json`;
 
@@ -10,47 +9,43 @@ module.exports.getAddressCoordinate = async (address) => {
         const response = await axios.get(url);
         if (response.data && response.data.length > 0) {
             const location = response.data[0];
+            
+            // LOG THIS to be sure
+            console.log("Raw LocationIQ Data:", location.lat, location.lon);
+
             return {
-                ltd: parseFloat(location.lat), // Keep 'ltd' to match your previous code
-                lng: parseFloat(location.lon)
+                ltd: location.lat, // We call it ltd to match your controller
+                lng: location.lon  // LocationIQ uses 'lon', not 'lng'
             };
-        } else {
-            throw new Error('Address not found');
         }
+        throw new Error('Address not found');
     } catch (error) {
-        console.error("Geocoding Error:", error.message);
         throw error;
     }
 };
 
 // Get Distance & Time (Coordinates -> Distance/Duration)
 module.exports.getDistanceTime = async (origin, destination) => {
-    if (!origin || !destination) {
-        throw new Error('Origin and destination are required');
-    }
-
     const apiKey = process.env.LOCATIONIQ_API_KEY;
-    // Format: lon,lat;lon,lat
     const coords = `${origin.lng},${origin.ltd};${destination.lng},${destination.ltd}`;
     const url = `https://us1.locationiq.com/v1/matrix/driving/${coords}?key=${apiKey}&annotations=distance,duration`;
 
     try {
         const response = await axios.get(url);
+        
+        // LocationIQ uses 'code', Google used 'status'
         if (response.data && response.data.code === 'Ok') {
-            // Distance is in meters, duration is in seconds
-            const distance = response.data.distances[0][1]; 
-            const duration = response.data.durations[0][1];
-
             return {
-                distance: (distance / 1000).toFixed(2), // Convert to Kilometers
-                duration: Math.round(duration / 60)      // Convert to Minutes
+                // distances[0][1] is the distance from Point A to Point B
+                distance: response.data.distances[0][1] / 1000, // Keep as raw number (KM)
+                duration: response.data.durations[0][1] / 60    // Keep as raw number (Minutes)
             };
         } else {
-            throw new Error('Unable to calculate distance');
+            throw new Error(response.data.code || 'Unable to calculate distance');
         }
     } catch (error) {
         console.error("Distance API Error:", error.message);
-        throw error;
+        throw error; // 🚨 CRITICAL: You must re-throw the error here!
     }
 };
 module.exports.getAutoCompleteSuggestions = async (input) => {
