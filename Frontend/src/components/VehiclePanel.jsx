@@ -9,6 +9,7 @@ const VehiclePanel = (props) => {
             <h3 className='text-2xl font-semibold mb-5'>Choose a Vehicle</h3>
             <div onClick={()=>{
                 props.setConfirmRidePanel(true)
+                props.setVehicleType('car')
             }} className='flex border-2 active:border-black  mb-2 rounded-xl w-full p-3  items-center justify-between'>
                 <img className='h-10' src="https://swyft.pl/wp-content/uploads/2023/05/how-many-people-can-a-uberx-take.jpg" alt="" />
                 <div className='ml-2 w-1/2'>
@@ -16,10 +17,11 @@ const VehiclePanel = (props) => {
                     <h5 className='font-medium text-sm'>2 mins away </h5>
                     <p className='font-normal text-xs text-gray-600'>Affordable, compact rides</p>
                 </div>
-                <h2 className='text-lg font-semibold'>₹193.20</h2>
+                <h2 className='text-lg font-semibold'>{props.fare.car}</h2>
             </div>
             <div onClick={()=>{
                 props.setConfirmRidePanel(true)
+                props.setVehicleType('moto')
             }} className='flex border-2 active:border-black mb-2 rounded-xl w-full p-3  items-center justify-between'>
                 <img className='h-10' src="https://cn-geo1.uber.com/image-proc/crop/resizecrop/udam/format=auto/width=1344/height=896/srcb64=aHR0cHM6Ly90Yi1zdGF0aWMudWJlci5jb20vcHJvZC91ZGFtLWFzc2V0cy85NTM4NTEyZC1mZGUxLTRmNzMtYmQ1MS05Y2VmZjRlMjU0ZjEucG5n" alt="" />
                 <div className='-ml-2 w-1/2'>
@@ -27,10 +29,11 @@ const VehiclePanel = (props) => {
                     <h5 className='font-medium text-sm'>3 mins away </h5>
                     <p className='font-normal text-xs text-gray-600'>Affordable motorcycle rides</p>
                 </div>
-                <h2 className='text-lg font-semibold'>₹65</h2>
+                <h2 className='text-lg font-semibold'>{props.fare.moto}</h2>
             </div>
             <div onClick={()=>{
                 props.setConfirmRidePanel(true)
+                props.setVehicleType('auto')
             }} className='flex border-2 active:border-black mb-2 rounded-xl w-full p-3  items-center justify-between'>
                 <img className='h-10' src="https://cn-geo1.uber.com/image-proc/crop/resizecrop/udam/format=auto/width=1344/height=1344/srcb64=aHR0cHM6Ly90Yi1zdGF0aWMudWJlci5jb20vcHJvZC91ZGFtLWFzc2V0cy9mYzEwMWZmOC04MWExLTQ2YzMtOTk1YS02N2I0YmJkMmYyYmYuanBn" alt="" />
                 <div className='ml-2 w-1/2'>
@@ -38,7 +41,7 @@ const VehiclePanel = (props) => {
                     <h5 className='font-medium text-sm'>3 mins away </h5>
                     <p className='font-normal text-xs text-gray-600'>Affordable Auto rides</p>
                 </div>
-                <h2 className='text-lg font-semibold'>₹118.86</h2>
+                <h2 className='text-lg font-semibold'>{props.fare.auto}</h2>
             </div>
         </div>
     )
