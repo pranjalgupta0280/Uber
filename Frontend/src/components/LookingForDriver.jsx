@@ -9,26 +9,30 @@ const LookingForDriver = (props) => {
             <h3 className='text-2xl font-semibold mb-5'>Looking for a Driver</h3>
 
             <div className='flex gap-2 justify-between flex-col items-center'>
-                <img className='h-20' src="https://swyft.pl/wp-content/uploads/2023/05/how-many-people-can-a-uberx-take.jpg" alt="" />
+                <img className='h-20' src={
+                    props.vehicleType === 'car' ? "https://swyft.pl/wp-content/uploads/2023/05/how-many-people-can-a-uberx-take.jpg" :
+                    props.vehicleType === 'moto' ? "https://cn-geo1.uber.com/image-proc/crop/resizecrop/udam/format=auto/width=1344/height=896/srcb64=aHR0cHM6Ly90Yi1zdGF0aWMudWJlci5jb20vcHJvZC91ZGFtLWFzc2V0cy85NTM4NTEyZC1mZGUxLTRmNzMtYmQ1MS05Y2VmZjRlMjU0ZjEucG5n" :
+                    "https://cn-geo1.uber.com/image-proc/crop/resizecrop/udam/format=auto/width=1344/height=1344/srcb64=aHR0cHM6Ly90Yi1zdGF0aWMudWJlci5jb20vcHJvZC91ZGFtLWFzc2V0cy9mYzEwMWZmOC04MWExLTQ2YzMtOTk1YS02N2I0YmJkMmYyYmYuanBn"
+                } alt="" />
                 <div className='w-full mt-5'>
                     <div className='flex items-center gap-5 p-3 border-b-2'>
                         <i className="ri-map-pin-user-fill"></i>
                         <div>
-                            <h3 className='text-lg font-medium'>562/11-A</h3>
-                            <p className='text-sm -mt-1 text-gray-600'>Kankariya Talab, Bhopal</p>
+                            <h3 className='text-lg font-medium'>{props.pickup?.split(',')[0]}</h3>
+                            <p className='text-sm -mt-1 text-gray-600'>{props.pickup?.split(',').slice(1).join(',')}</p>
                         </div>
                     </div>
                     <div className='flex items-center gap-5 p-3 border-b-2'>
                         <i className="text-lg ri-map-pin-2-fill"></i>
                         <div>
-                            <h3 className='text-lg font-medium'>562/11-A</h3>
-                            <p className='text-sm -mt-1 text-gray-600'>Kankariya Talab, Bhopal</p>
+                            <h3 className='text-lg font-medium'>{props.destination?.split(',')[0]}</h3>
+                            <p className='text-sm -mt-1 text-gray-600'>{props.destination?.split(',').slice(1).join(',')}</p>
                         </div>
                     </div>
                     <div className='flex items-center gap-5 p-3'>
                         <i className="ri-currency-line"></i>
                         <div>
-                            <h3 className='text-lg font-medium'>₹193.20 </h3>
+                            <h3 className='text-lg font-medium'>₹{props.fare[props.vehicleType]}</h3>
                             <p className='text-sm -mt-1 text-gray-600'>Cash Cash</p>
                         </div>
                     </div>
