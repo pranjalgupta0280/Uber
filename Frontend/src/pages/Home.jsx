@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react'
+import React, { useRef, useState, useEffect, useContext } from 'react'
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import axios from 'axios';
@@ -8,6 +8,8 @@ import VehiclePanel from '../components/VehiclePanel';
 import ConfirmRide from '../components/ConfirmRide';
 import LookingForDriver from '../components/LookingForDriver';
 import WaitingForDriver from '../components/WaitingForDriver';
+import { SocketContext } from '../context/SocketContext';
+import { UserDataContext } from '../context/UserContext';
 
 const Home = () => {
     const [pickup, setPickup] = useState('')
@@ -31,6 +33,15 @@ const Home = () => {
     const panelCloseRef = useRef(null)
     const vehicleFoundRef = useRef(null)
     const waitingForDriverRef = useRef(null)
+
+    const { socket } = useContext(SocketContext)
+    const { user } = useContext(UserDataContext)
+
+    useEffect(() => {
+        if (user) {
+            socket.emit('join', { userId: user._id, userType: 'user' })
+        }
+    }, [user, socket])
 
     // Handle Pickup Suggestions
     const handlePickupChange = async (e) => {
