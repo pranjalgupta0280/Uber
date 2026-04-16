@@ -25,6 +25,36 @@ function initializeSocket(server) {
             }
         });
 
+        socket.on('goOnline', async ({ captainId }) => {
+            console.log('goOnline event received', { captainId });
+            if (!captainId) return;
+            try {
+                await captainModel.findByIdAndUpdate(captainId, { status: 'active' });
+            } catch (error) {
+                console.error('goOnline update failed:', error);
+            }
+        });
+
+        socket.on('goOffline', async ({ captainId }) => {
+            console.log('goOffline event received', { captainId });
+            if (!captainId) return;
+            try {
+                await captainModel.findByIdAndUpdate(captainId, { status: 'inactive' });
+            } catch (error) {
+                console.error('goOffline update failed:', error);
+            }
+        });
+
+        socket.on('updateCaptainLocation', async ({ captainId, location }) => {
+            console.log('updateCaptainLocation event received', { captainId, location });
+            if (!captainId || !location) return;
+            try {
+                await captainModel.findByIdAndUpdate(captainId, { location });
+            } catch (error) {
+                console.error('updateCaptainLocation failed:', error);
+            }
+        });
+
         socket.on('disconnect', () => {
             console.log(`Client disconnected: ${socket.id}`);
         });

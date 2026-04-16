@@ -13,6 +13,7 @@ const CaptainHome = () => {
     const [ridePopupPanel, setRidePopupPanel] = useState(true)
     const [confirmRidePopupPanel, setConfirmRidePopupPanel] = useState(false)
     const [isOnline, setIsOnline] = useState(false)
+    const [locationError, setLocationError] = useState(null)
     const watchIdRef = useRef(null)
 
     const ridePopupPanelRef = useRef(null)
@@ -22,29 +23,40 @@ const CaptainHome = () => {
     const { captain } = useContext(CaptainDataContext)
 
     useEffect(() => {
-        if (captain) {
+        if (captain?._id) {
             socket.emit('join', { userId: captain._id, userType: 'captain' })
         }
     }, [captain, socket])
 
     useEffect(() => {
+        const captainId = captain?._id || captain?.id;
+        if (!captainId) return;
+
         if (isOnline) {
-            socket.emit('goOnline', { captainId: captain._id });
+            socket.emit('goOnline', { captainId });
+
+            if (!navigator.geolocation) {
+                setLocationError('Geolocation is not supported by your browser.');
+                setIsOnline(false);
+                return;
+            }
+
             watchIdRef.current = navigator.geolocation.watchPosition(
                 (position) => {
                     const { latitude, longitude } = position.coords;
-                    console.log('Updating location:', { latitude, longitude });
+                    console.log('Updating location:', { latitude, longitude, captainId });
                     socket.emit('updateCaptainLocation', {
-                        captainId: captain._id,
+                        captainId,
                         location: {
-                            type: 'Point',
-                            coordinates: [longitude, latitude], // lng, lat for GeoJSON
+                            ltd: latitude,
+                            lng: longitude,
                         },
                     });
                 },
                 (error) => {
                     console.error('Error watching position:', error);
-                    setIsOnline(false); // Turn off if there's an error (e.g., permissions denied)
+                    setLocationError(error.message || 'Unable to access GPS location.');
+                    setIsOnline(false);
                 },
                 {
                     enableHighAccuracy: true,
@@ -57,9 +69,8 @@ const CaptainHome = () => {
                 navigator.geolocation.clearWatch(watchIdRef.current);
                 watchIdRef.current = null;
             }
-            if (captain?._id) {
-                socket.emit('goOffline', { captainId: captain._id });
-            }
+            socket.emit('goOffline', { captainId });
+            setLocationError(null);
         }
 
         return () => {
@@ -108,14 +119,27 @@ const CaptainHome = () => {
             </div>
             <div className='h-2/5 p-6'>
                 <CaptainDetails />
-                <button
-                    onClick={() => setIsOnline(prev => !prev)}
-                    className={`w-full mt-4 py-3 rounded-lg text-white font-semibold text-lg transition-colors ${
-                        isOnline ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'
-                    }`}
-                >
-                    {isOnline ? 'Go Offline' : 'Go Online'}
-                </button>
+                <div className='mt-4 flex flex-col gap-3'>
+                    <div className='flex items-center justify-between rounded-xl border border-gray-200 bg-slate-50 px-4 py-3'>
+                        <span className='font-medium text-sm text-slate-700'>Status</span>
+                        <span className={`rounded-full px-3 py-1 text-xs font-semibold ${isOnline ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-700'}`}>
+                            {isOnline ? 'Online' : 'Offline'}
+                        </span>
+                    </div>
+                    {locationError && (
+                        <div className='rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700'>
+                            {locationError}
+                        </div>
+                    )}
+                    <button
+                        onClick={() => setIsOnline(prev => !prev)}
+                        className={`w-full py-3 rounded-lg text-white font-semibold text-lg transition-colors ${
+                            isOnline ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'
+                        }`}
+                    >
+                        {isOnline ? 'Go Offline' : 'Go Online'}
+                    </button>
+                </div>
             </div>
             <div ref={ridePopupPanelRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-10 pt-12'>
                 <RidePopUp setRidePopupPanel={setRidePopupPanel}  setConfirmRidePopupPanel={setConfirmRidePopupPanel} />

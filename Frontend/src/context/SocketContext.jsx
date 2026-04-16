@@ -4,7 +4,10 @@ import { io } from 'socket.io-client';
 export const SocketContext = createContext();
 
 // Make sure this environment variable points to your backend URL (e.g., http://localhost:4000)
-const socket = io(`${import.meta.env.VITE_BASE_URL}`); 
+const socketUrl = import.meta.env.VITE_BASE_URL || window.location.origin;
+const socket = io(socketUrl, {
+    transports: ['websocket', 'polling'],
+});
 
 const SocketProvider = ({ children }) => {
     useEffect(() => {
