@@ -12,6 +12,8 @@ import { CaptainDataContext } from '../context/CaptainContext'
 const CaptainHome = () => {
     const [ridePopupPanel, setRidePopupPanel] = useState(true)
     const [confirmRidePopupPanel, setConfirmRidePopupPanel] = useState(false)
+    const [isOnline, setIsOnline] = useState(false)
+    const watchIdRef = useRef(null)
 
     const ridePopupPanelRef = useRef(null)
     const confirmRidePopupPanelRef = useRef(null)
@@ -24,6 +26,48 @@ const CaptainHome = () => {
             socket.emit('join', { userId: captain._id, userType: 'captain' })
         }
     }, [captain, socket])
+
+    useEffect(() => {
+        if (isOnline) {
+            socket.emit('goOnline', { captainId: captain._id });
+            watchIdRef.current = navigator.geolocation.watchPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords;
+                    console.log('Updating location:', { latitude, longitude });
+                    socket.emit('updateCaptainLocation', {
+                        captainId: captain._id,
+                        location: {
+                            type: 'Point',
+                            coordinates: [longitude, latitude], // lng, lat for GeoJSON
+                        },
+                    });
+                },
+                (error) => {
+                    console.error('Error watching position:', error);
+                    setIsOnline(false); // Turn off if there's an error (e.g., permissions denied)
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 5000,
+                    maximumAge: 0,
+                }
+            );
+        } else {
+            if (watchIdRef.current) {
+                navigator.geolocation.clearWatch(watchIdRef.current);
+                watchIdRef.current = null;
+            }
+            if (captain?._id) {
+                socket.emit('goOffline', { captainId: captain._id });
+            }
+        }
+
+        return () => {
+            if (watchIdRef.current) {
+                navigator.geolocation.clearWatch(watchIdRef.current);
+            }
+        };
+    }, [isOnline, socket, captain]);
 
 
     useGSAP(function () {
@@ -64,6 +108,14 @@ const CaptainHome = () => {
             </div>
             <div className='h-2/5 p-6'>
                 <CaptainDetails />
+                <button
+                    onClick={() => setIsOnline(prev => !prev)}
+                    className={`w-full mt-4 py-3 rounded-lg text-white font-semibold text-lg transition-colors ${
+                        isOnline ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'
+                    }`}
+                >
+                    {isOnline ? 'Go Offline' : 'Go Online'}
+                </button>
             </div>
             <div ref={ridePopupPanelRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-10 pt-12'>
                 <RidePopUp setRidePopupPanel={setRidePopupPanel}  setConfirmRidePopupPanel={setConfirmRidePopupPanel} />

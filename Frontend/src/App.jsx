@@ -11,7 +11,6 @@ import CaptainSignup from './pages/CaptainSignup'
 import CaptainHome from './pages/CaptainHome'
 import CaptainProtectWrapper from './pages/CaptainProtectedWrapper'
 import CaptainLogout from './pages/CaptainLogout'
-import SocketProvider from './context/SocketContext';
 
 import Riding from './pages/Riding'
 import CaptainRiding from './pages/CaptainRiding'
