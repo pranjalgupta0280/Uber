@@ -21,7 +21,7 @@ const VehiclePanel = (props) => {
             </div>
             <div onClick={()=>{
                 props.setConfirmRidePanel(true)
-                props.setVehicleType('moto')
+                props.setVehicleType('motorcycle')
             }} className='flex border-2 active:border-black mb-2 rounded-xl w-full p-3  items-center justify-between'>
                 <img className='h-10' src="https://cn-geo1.uber.com/image-proc/crop/resizecrop/udam/format=auto/width=1344/height=896/srcb64=aHR0cHM6Ly90Yi1zdGF0aWMudWJlci5jb20vcHJvZC91ZGFtLWFzc2V0cy85NTM4NTEyZC1mZGUxLTRmNzMtYmQ1MS05Y2VmZjRlMjU0ZjEucG5n" alt="" />
                 <div className='-ml-2 w-1/2'>
@@ -29,7 +29,7 @@ const VehiclePanel = (props) => {
                     <h5 className='font-medium text-sm'>3 mins away </h5>
                     <p className='font-normal text-xs text-gray-600'>Affordable motorcycle rides</p>
                 </div>
-                <h2 className='text-lg font-semibold'>{props.fare.moto}</h2>
+                <h2 className='text-lg font-semibold'>{props.fare.motorcycle}</h2>
             </div>
             <div onClick={()=>{
                 props.setConfirmRidePanel(true)

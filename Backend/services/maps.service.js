@@ -48,6 +48,31 @@ module.exports.getDistanceTime = async (origin, destination) => {
         throw error; // 🚨 CRITICAL: You must re-throw the error here!
     }
 };
+
+module.exports.getDistanceTimeMatrix = async (origin, destinations) => {
+    if (!origin || !Array.isArray(destinations) || destinations.length === 0) {
+        throw new Error('Origin and destination list are required');
+    }
+
+    const apiKey = process.env.LOCATIONIQ_API_KEY;
+    const coords = [origin, ...destinations]
+        .map((point) => `${point.lng},${point.ltd}`)
+        .join(';');
+    const url = `https://us1.locationiq.com/v1/matrix/driving/${coords}?key=${apiKey}&annotations=distance,duration`;
+
+    try {
+        const response = await axios.get(url);
+
+        if (response.data && response.data.code === 'Ok') {
+            return response.data;
+        } else {
+            throw new Error(response.data.code || 'Unable to calculate matrix distances');
+        }
+    } catch (error) {
+        console.error('Matrix distance API error:', error.message);
+        throw error;
+    }
+};
 module.exports.getAutoCompleteSuggestions = async (input) => {
     if (!input) {
         throw new Error('query is required');

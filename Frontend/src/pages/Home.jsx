@@ -19,6 +19,12 @@ const Home = () => {
     const [confirmRidePanel, setConfirmRidePanel] = useState(false)
     const [vehicleFound, setVehicleFound] = useState(false)
     const [waitingForDriver, setWaitingForDriver] = useState(false)
+    const [rideRequest, setRideRequest] = useState(null)
+    const [acceptedRide, setAcceptedRide] = useState(null)
+    const [rideStartedInfo, setRideStartedInfo] = useState(null)
+    const [rideStatus, setRideStatus] = useState('idle')
+    const [isConfirmingRide, setIsConfirmingRide] = useState(false)
+    const [apiError, setApiError] = useState(null)
     
     // New States for Backend Integration
     const [pickupSuggestions, setPickupSuggestions] = useState([])
@@ -38,10 +44,56 @@ const Home = () => {
     const { user } = useContext(UserDataContext)
 
     useEffect(() => {
-        if (user) {
+        if (!user) return;
+
+        const joinUser = () => {
             socket.emit('join', { userId: user._id, userType: 'user' })
         }
+
+        if (socket.connected) {
+            joinUser()
+        }
+
+        socket.on('connect', joinUser)
+
+        return () => {
+            socket.off('connect', joinUser)
+        }
     }, [user, socket])
+
+    useEffect(() => {
+        const onRideAccepted = (data) => {
+            setAcceptedRide(data)
+            setRideStatus('accepted')
+            setWaitingForDriver(true)
+            setApiError(null)
+        }
+
+        const onRideStarted = (data) => {
+            setRideStartedInfo(data)
+            setRideStatus('started')
+            setWaitingForDriver(true)
+            setApiError(null)
+        }
+
+        const onRideRejected = () => {
+            setApiError('Driver rejected your request. Please try again.')
+            setRideStatus('rejected')
+            setWaitingForDriver(false)
+            setAcceptedRide(null)
+            setRideStartedInfo(null)
+        }
+
+        socket.on('rideAccepted', onRideAccepted)
+        socket.on('rideStarted', onRideStarted)
+        socket.on('rideRejected', onRideRejected)
+
+        return () => {
+            socket.off('rideAccepted', onRideAccepted)
+            socket.off('rideStarted', onRideStarted)
+            socket.off('rideRejected', onRideRejected)
+        }
+    }, [socket])
 
     // Handle Pickup Suggestions
     const handlePickupChange = async (e) => {
@@ -73,17 +125,56 @@ const Home = () => {
 
     const findTrip = async () => {
         setPanelOpen(false)
-        
-        const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/rides/get-fare`, {
-            params: { pickup, destination },
-            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        })
-        setFare(response.data)
-        setVehiclePanel(true)
+        setApiError(null)
+        try {
+            const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/rides/get-fare`, {
+                params: { pickup, destination },
+                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+            })
+            setFare(response.data)
+            setVehiclePanel(true)
+        } catch (error) {
+            console.error('Fare lookup failed', error);
+            setApiError('Unable to fetch fare. Please try again.');
+        }
     }
 
     const submitHandler = (e) => {
         e.preventDefault()
+    }
+
+    const confirmRide = async () => {
+        if (!pickup || !destination || !vehicleType) {
+            setApiError('Please choose pickup, destination, and vehicle type before confirming.')
+            return
+        }
+
+        setApiError(null)
+        setIsConfirmingRide(true)
+        setRideStatus('waiting')
+
+        try {
+            const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/rides/create`, {
+                pickup,
+                destination,
+                vehicleType
+            }, {
+                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+            })
+
+            setRideRequest(response.data.ride)
+            setWaitingForDriver(true)
+            setVehicleFound(false)
+            setConfirmRidePanel(false)
+            setVehiclePanel(false)
+        } catch (error) {
+            console.error('Ride creation failed', error)
+            setApiError(error.response?.data?.message || 'Unable to request ride.')
+            setWaitingForDriver(false)
+            setRideStatus('idle')
+        } finally {
+            setIsConfirmingRide(false)
+        }
     }
 
     // GSAP Animations (Keep your existing ones)
@@ -172,7 +263,17 @@ const Home = () => {
             </div>
             
             <div ref={confirmRidePanelRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6 pt-12'>
-                <ConfirmRide vehicleType={vehicleType} fare={fare} pickup={pickup} destination={destination} setConfirmRidePanel={setConfirmRidePanel} setVehicleFound={setVehicleFound} />
+                <ConfirmRide
+                vehicleType={vehicleType}
+                fare={fare}
+                pickup={pickup}
+                destination={destination}
+                setConfirmRidePanel={setConfirmRidePanel}
+                setVehicleFound={setVehicleFound}
+                onConfirm={confirmRide}
+                isProcessing={isConfirmingRide}
+                error={apiError}
+            />
             </div>
 
             <div ref={vehicleFoundRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6 pt-12'>
@@ -180,7 +281,12 @@ const Home = () => {
             </div>
 
             <div ref={waitingForDriverRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6 pt-12'>
-                <WaitingForDriver waitingForDriver={waitingForDriver} />
+                <WaitingForDriver
+                    waitingForDriver={waitingForDriver}
+                    status={rideStatus}
+                    ride={rideStatus === 'started' ? rideStartedInfo : (rideStatus === 'accepted' ? acceptedRide : rideRequest)}
+                    onClose={setWaitingForDriver}
+                />
             </div>
         </div>
     )

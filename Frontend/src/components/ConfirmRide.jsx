@@ -11,7 +11,7 @@ const ConfirmRide = (props) => {
             <div className='flex gap-2 justify-between flex-col items-center'>
                 <img className='h-20' src={
                     props.vehicleType === 'car' ? "https://swyft.pl/wp-content/uploads/2023/05/how-many-people-can-a-uberx-take.jpg" :
-                    props.vehicleType === 'moto' ? "https://cn-geo1.uber.com/image-proc/crop/resizecrop/udam/format=auto/width=1344/height=896/srcb64=aHR0cHM6Ly90Yi1zdGF0aWMudWJlci5jb20vcHJvZC91ZGFtLWFzc2V0cy85NTM4NTEyZC1mZGUxLTRmNzMtYmQ1MS05Y2VmZjRlMjU0ZjEucG5n" :
+                    props.vehicleType === 'motorcycle' ? "https://cn-geo1.uber.com/image-proc/crop/resizecrop/udam/format=auto/width=1344/height=896/srcb64=aHR0cHM6Ly90Yi1zdGF0aWMudWJlci5jb20vcHJvZC91ZGFtLWFzc2V0cy85NTM4NTEyZC1mZGUxLTRmNzMtYmQ1MS05Y2VmZjRlMjU0ZjEucG5n" :
                     "https://cn-geo1.uber.com/image-proc/crop/resizecrop/udam/format=auto/width=1344/height=1344/srcb64=aHR0cHM6Ly90Yi1zdGF0aWMudWJlci5jb20vcHJvZC91ZGFtLWFzc2V0cy9mYzEwMWZmOC04MWExLTQ2YzMtOTk1YS02N2I0YmJkMmYyYmYuanBn"
                 } alt="" />
                 <div className='w-full mt-5'>
@@ -37,11 +37,18 @@ const ConfirmRide = (props) => {
                         </div>
                     </div>
                 </div>
-                 <button onClick={()=>{
-                props.setVehicleFound(true)
-                props.setConfirmRidePanel(false)
-
-                }} className='w-full mt-5 bg-green-600 text-white font-semibold p-2 rounded-lg'>Confirm</button>
+                {props.error && (
+                    <div className='mt-4 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700'>
+                        {props.error}
+                    </div>
+                )}
+                <button
+                    onClick={() => props.onConfirm?.()}
+                    disabled={props.isProcessing}
+                    className={`w-full mt-5 text-white font-semibold p-2 rounded-lg transition ${props.isProcessing ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'}`}
+                >
+                    {props.isProcessing ? 'Requesting...' : 'Confirm'}
+                </button>
             </div>
         </div>
     )

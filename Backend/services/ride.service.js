@@ -1,4 +1,5 @@
 const rideModel = require('../models/ride.model');
+const captainModel = require('../models/captain.model');
 const mapService = require('./maps.service');
 const crypto = require('crypto');
 
@@ -29,6 +30,41 @@ async function getFare(pickup, destination) {
     return fare;
 }
 
+module.exports.getClosestCaptains = async (pickup, vehicleType) => {
+    if (!pickup || !vehicleType) {
+        throw new Error('Pickup and vehicleType are required');
+    }
+
+    const pickupCoords = await mapService.getAddressCoordinate(pickup);
+
+    const captains = await captainModel.find({
+        status: 'active',
+        'vehicle.vehicleType': vehicleType,
+        'location.ltd': { $exists: true },
+        'location.lng': { $exists: true },
+        socketId: { $exists: true, $ne: null }
+    }).lean();
+
+    if (!captains.length) {
+        throw new Error('No active captains available nearby');
+    }
+
+    const destinations = captains.map((captain) => ({
+        lng: captain.location.lng,
+        ltd: captain.location.ltd
+    }));
+
+    const matrix = await mapService.getDistanceTimeMatrix(pickupCoords, destinations);
+    const distances = matrix.distances[0];
+    const durations = matrix.durations[0];
+
+    return captains.map((captain, index) => ({
+        captain,
+        distance: distances[index + 1] / 1000,
+        duration: durations[index + 1] / 60
+    })).sort((a, b) => a.distance - b.distance);
+}
+
 // Keeping your OTP logic
 function getOtp(num) {
     return crypto.randomInt(Math.pow(10, num - 1), Math.pow(10, num)).toString();
@@ -37,17 +73,17 @@ function getOtp(num) {
 module.exports.getFare = getFare; // Exported so controllers can show fares before booking
 
 module.exports.createRide = async ({
-    user, pickup, destination, vehicleType
+    user, pickup, destination, vehicleType, captain
 }) => {
     if (!user || !pickup || !destination || !vehicleType) {
-        throw new Error('All fields are required');
+        throw new Error('User, pickup, destination, and vehicleType are required');
     }
-    console.log(pickup,destination)
+    console.log(pickup, destination)
     const fare = await getFare(pickup, destination);
 
-    // CRITICAL: Added 'await' here so the ride actually saves before returning
     const ride = await rideModel.create({
         user,
+        captain,
         pickup,
         destination,
         otp: getOtp(6),

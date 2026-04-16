@@ -10,8 +10,10 @@ import { CaptainDataContext } from '../context/CaptainContext'
 
 
 const CaptainHome = () => {
-    const [ridePopupPanel, setRidePopupPanel] = useState(true)
+    const [ridePopupPanel, setRidePopupPanel] = useState(false)
     const [confirmRidePopupPanel, setConfirmRidePopupPanel] = useState(false)
+    const [rideRequest, setRideRequest] = useState(null)
+    const [startedMessage, setStartedMessage] = useState(null)
     const [isOnline, setIsOnline] = useState(false)
     const [locationError, setLocationError] = useState(null)
     const watchIdRef = useRef(null)
@@ -23,10 +25,58 @@ const CaptainHome = () => {
     const { captain } = useContext(CaptainDataContext)
 
     useEffect(() => {
-        if (captain?._id) {
-            socket.emit('join', { userId: captain._id, userType: 'captain' })
+        const captainId = captain?._id || captain?.id;
+        if (!captainId) return;
+
+        const joinCaptain = () => {
+            socket.emit('join', { userId: captainId, userType: 'captain' })
+        }
+
+        if (socket.connected) {
+            joinCaptain()
+        }
+
+        socket.on('connect', joinCaptain)
+
+        return () => {
+            socket.off('connect', joinCaptain)
         }
     }, [captain, socket])
+
+    useEffect(() => {
+        const handleNewRide = (data, callback) => {
+            console.log('Received new ride request:', data);
+            setRideRequest(data);
+            setRidePopupPanel(true);
+            if (callback) {
+                callback({ received: true });
+            }
+        };
+
+        const handleRideStartedConfirmed = ({ message }) => {
+            setStartedMessage(message || 'Ride started successfully.')
+            setTimeout(() => setStartedMessage(null), 5000)
+        }
+
+        socket.on('newRideRequest', handleNewRide);
+        socket.on('rideStartedConfirmed', handleRideStartedConfirmed);
+
+        return () => {
+            socket.off('newRideRequest', handleNewRide);
+            socket.off('rideStartedConfirmed', handleRideStartedConfirmed);
+        };
+    }, [socket]);
+
+    const toggleOnline = () => {
+        if (!isOnline && !navigator.geolocation) {
+            setLocationError('Geolocation is not supported by your browser.');
+            return;
+        }
+        if (isOnline) {
+            setLocationError(null);
+        }
+        setIsOnline(prev => !prev);
+    };
 
     useEffect(() => {
         const captainId = captain?._id || captain?.id;
@@ -35,12 +85,6 @@ const CaptainHome = () => {
         if (isOnline) {
             socket.emit('goOnline', { captainId });
 
-            if (!navigator.geolocation) {
-                setLocationError('Geolocation is not supported by your browser.');
-                setIsOnline(false);
-                return;
-            }
-
             watchIdRef.current = navigator.geolocation.watchPosition(
                 (position) => {
                     const { latitude, longitude } = position.coords;
@@ -48,8 +92,8 @@ const CaptainHome = () => {
                     socket.emit('updateCaptainLocation', {
                         captainId,
                         location: {
-                            ltd: latitude,
-                            lng: longitude,
+                            type: 'Point',
+                            coordinates: [longitude, latitude] // lng, lat for GeoJSON
                         },
                     });
                 },
@@ -70,7 +114,6 @@ const CaptainHome = () => {
                 watchIdRef.current = null;
             }
             socket.emit('goOffline', { captainId });
-            setLocationError(null);
         }
 
         return () => {
@@ -115,8 +158,12 @@ const CaptainHome = () => {
             </div>
             <div className='h-3/5'>
                 <img className='h-full w-full object-cover' src="https://miro.medium.com/v2/resize:fit:1400/0*gwMx05pqII5hbfmX.gif" alt="" />
-
             </div>
+            {startedMessage && (
+              <div className='fixed left-1/2 top-20 z-20 w-[90%] -translate-x-1/2 rounded-xl bg-emerald-600 px-4 py-3 text-white shadow-lg'>
+                {startedMessage}
+              </div>
+            )}
             <div className='h-2/5 p-6'>
                 <CaptainDetails />
                 <div className='mt-4 flex flex-col gap-3'>
@@ -132,7 +179,7 @@ const CaptainHome = () => {
                         </div>
                     )}
                     <button
-                        onClick={() => setIsOnline(prev => !prev)}
+                        onClick={toggleOnline}
                         className={`w-full py-3 rounded-lg text-white font-semibold text-lg transition-colors ${
                             isOnline ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'
                         }`}
@@ -142,10 +189,20 @@ const CaptainHome = () => {
                 </div>
             </div>
             <div ref={ridePopupPanelRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-10 pt-12'>
-                <RidePopUp setRidePopupPanel={setRidePopupPanel}  setConfirmRidePopupPanel={setConfirmRidePopupPanel} />
+                <RidePopUp
+                    rideRequest={rideRequest}
+                    socket={socket}
+                    setRidePopupPanel={setRidePopupPanel}
+                    setConfirmRidePopupPanel={setConfirmRidePopupPanel}
+                />
             </div>
             <div ref={confirmRidePopupPanelRef} className='fixed w-full h-screen z-10 bottom-0 translate-y-full bg-white px-3 py-10 pt-12'>
-                <ConfirmRidePopUp setConfirmRidePopupPanel={setConfirmRidePopupPanel} setRidePopupPanel={setRidePopupPanel}  />
+                <ConfirmRidePopUp
+                    rideRequest={rideRequest}
+                    socket={socket}
+                    setConfirmRidePopupPanel={setConfirmRidePopupPanel}
+                    setRidePopupPanel={setRidePopupPanel}
+                />
             </div>
         </div>
     )
