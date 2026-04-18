@@ -33,7 +33,7 @@ const UserLogin = () => {
   }
 
   return (
-    <div className='p-7 h-screen flex flex-col justify-between'>
+    <div className='p-7 h-screen flex flex-col justify-between md:max-w-lg md:mx-auto md:my-12 md:rounded-[2rem] md:bg-white md:shadow-xl md:px-10 md:py-10'>
       <div>
         <img className='w-16 mb-10' src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQYQy-OIkA6In0fTvVwZADPmFFibjmszu2A0g&s" alt="" />
 

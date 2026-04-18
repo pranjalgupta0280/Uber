@@ -213,7 +213,7 @@ const Home = () => {
             </div>
 
             <div className='flex flex-col justify-end h-screen absolute top-0 w-full'>
-                <div className='h-[30%] p-6 bg-white relative'>
+                <div className='h-[30%] p-6 bg-white relative md:mx-auto md:w-[92%] md:max-w-xl md:rounded-4xl md:shadow-2xl md:mt-auto md:mb-6'>
                     <h5 ref={panelCloseRef} onClick={() => setPanelOpen(false)} className='absolute opacity-0 right-6 top-6 text-2xl'>
                         <i className="ri-arrow-down-wide-fill"></i>
                     </h5>
@@ -245,7 +245,7 @@ const Home = () => {
                     </button>
                 </div>
 
-                <div ref={panelRef} className='bg-white h-0 overflow-y-scroll'>
+                <div ref={panelRef} className='bg-white h-0 overflow-y-scroll md:mx-auto md:w-[92%] md:max-w-3xl md:rounded-t-4xl md:shadow-2xl'>
                     <LocationSearchPanel 
                         suggestions={activeField === 'pickup' ? pickupSuggestions : destinationSuggestions}
                         setPanelOpen={setPanelOpen} 
@@ -258,11 +258,11 @@ const Home = () => {
             </div>
 
             {/* Panels with Fare Data passed down */}
-            <div ref={vehiclePanelRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-10 pt-12'>
+            <div ref={vehiclePanelRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-10 pt-12 md:mx-auto md:w-[92%] md:max-w-3xl md:rounded-t-4xl md:shadow-2xl'>
                 <VehiclePanel setVehicleType={setVehicleType} fare={fare} setConfirmRidePanel={setConfirmRidePanel} setVehiclePanel={setVehiclePanel} />
             </div>
             
-            <div ref={confirmRidePanelRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6 pt-12'>
+            <div ref={confirmRidePanelRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6 pt-12 md:mx-auto md:w-[92%] md:max-w-3xl md:rounded-t-4xl md:shadow-2xl'>
                 <ConfirmRide
                 vehicleType={vehicleType}
                 fare={fare}
@@ -276,11 +276,11 @@ const Home = () => {
             />
             </div>
 
-            <div ref={vehicleFoundRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6 pt-12'>
+            <div ref={vehicleFoundRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6 pt-12 md:mx-auto md:w-[92%] md:max-w-3xl md:rounded-t-4xl md:shadow-2xl'>
                 <LookingForDriver vehicleType={vehicleType} fare={fare} pickup={pickup} destination={destination} setVehicleFound={setVehicleFound} />
             </div>
 
-            <div ref={waitingForDriverRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6 pt-12'>
+            <div ref={waitingForDriverRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6 pt-12 md:mx-auto md:w-[92%] md:max-w-3xl md:rounded-t-4xl md:shadow-2xl'>
                 <WaitingForDriver
                     waitingForDriver={waitingForDriver}
                     status={rideStatus}

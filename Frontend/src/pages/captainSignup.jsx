@@ -61,7 +61,7 @@ const { captain, setCaptain } = React.useContext(CaptainDataContext)
     setVehicleType('')
   };
   return (
-    <div className='py-5 px-5 h-screen flex flex-col justify-between'>
+    <div className='py-5 px-5 h-screen flex flex-col justify-between md:max-w-3xl md:mx-auto md:my-10 md:rounded-[2rem] md:bg-white md:shadow-xl md:px-10 md:py-10'>
         <div>
         <img className='w-20 mb-3' src="https://www.svgrepo.com/show/505031/uber-driver.svg" alt="" />
 
@@ -118,10 +118,10 @@ const { captain, setCaptain } = React.useContext(CaptainDataContext)
             />
 
           <h3 className='text-lg font-medium mb-2'>Vehicle Information</h3>
-          <div className='flex gap-4 mb-7'>
+          <div className='flex flex-col gap-4 mb-7 md:flex-row'>
             <input
             required
-              className='bg-[#eeeeee] w-1/2 rounded-lg px-4 py-2 border text-lg placeholder:text-base'
+              className='bg-[#eeeeee] w-full md:w-1/2 rounded-lg px-4 py-2 border text-lg placeholder:text-base'
               type="text"
               placeholder='Vehicle Color'
               value={vehicleColor}
@@ -131,7 +131,7 @@ const { captain, setCaptain } = React.useContext(CaptainDataContext)
             />
            <input
               required
-              className='bg-[#eeeeee] w-1/2 rounded-lg px-4 py-2 border text-lg placeholder:text-base'
+              className='bg-[#eeeeee] w-full md:w-1/2 rounded-lg px-4 py-2 border text-lg placeholder:text-base'
               type="text"
               placeholder='Vehicle Plate'
               value={vehiclePlate}
@@ -140,10 +140,10 @@ const { captain, setCaptain } = React.useContext(CaptainDataContext)
               }}
             />
           </div>
-          <div className='flex gap-4 mb-7'>
+          <div className='flex flex-col gap-4 mb-7 md:flex-row'>
             <input
               required
-              className='bg-[#eeeeee] w-1/2 rounded-lg px-4 py-2 border text-lg placeholder:text-base'
+              className='bg-[#eeeeee] w-full md:w-1/2 rounded-lg px-4 py-2 border text-lg placeholder:text-base'
               type="number"
               placeholder='Vehicle Capacity'
               value={vehicleCapacity}
@@ -153,7 +153,7 @@ const { captain, setCaptain } = React.useContext(CaptainDataContext)
             />
             <select
               required
-              className='bg-[#eeeeee] w-1/2 rounded-lg px-4 py-2 border text-lg placeholder:text-base'
+              className='bg-[#eeeeee] w-full md:w-1/2 rounded-lg px-4 py-2 border text-lg placeholder:text-base'
               value={vehicleType}
               onChange={(e) => {
                 setVehicleType(e.target.value)

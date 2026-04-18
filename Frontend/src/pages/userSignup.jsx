@@ -40,8 +40,8 @@ if(response.status==201)
 
   }
   return (
-    <div>
-      <div className='p-7 h-screen flex flex-col justify-between'>
+    <div className='main-shell'>
+      <div className='p-7 h-screen flex flex-col justify-between md:max-w-3xl md:mx-auto md:my-12 md:rounded-[2rem] md:bg-white md:shadow-xl md:px-10 md:py-10'>
         <div>
           <img className='w-16 mb-10' src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQYQy-OIkA6In0fTvVwZADPmFFibjmszu2A0g&s" alt="" />
 
@@ -50,10 +50,10 @@ if(response.status==201)
           }}>
 
             <h3 className='text-lg w-1/2  font-medium mb-2'>What's your name</h3>
-            <div className='flex gap-4 mb-7'>
+            <div className='flex flex-col gap-4 mb-7 md:flex-row'>
               <input
                 required
-                className='bg-[#eeeeee] w-1/2 rounded-lg px-4 py-2 border  text-lg placeholder:text-base'
+                className='bg-[#eeeeee] w-full md:w-1/2 rounded-lg px-4 py-2 border text-lg placeholder:text-base'
                 type="text"
                 placeholder='First name'
                 value={firstName}
@@ -63,7 +63,7 @@ if(response.status==201)
               />
               <input
                 required
-                className='bg-[#eeeeee] w-1/2  rounded-lg px-4 py-2 border  text-lg placeholder:text-base'
+                className='bg-[#eeeeee] w-full md:w-1/2 rounded-lg px-4 py-2 border text-lg placeholder:text-base'
                 type="text"
                 placeholder='Last name'
                 value={lastName}

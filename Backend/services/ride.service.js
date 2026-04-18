@@ -40,8 +40,8 @@ module.exports.getClosestCaptains = async (pickup, vehicleType) => {
     const captains = await captainModel.find({
         status: 'active',
         'vehicle.vehicleType': vehicleType,
-        'location.ltd': { $exists: true },
-        'location.lng': { $exists: true },
+        'location.coordinates.0': { $exists: true },
+        'location.coordinates.1': { $exists: true },
         socketId: { $exists: true, $ne: null }
     }).lean();
 
@@ -49,16 +49,28 @@ module.exports.getClosestCaptains = async (pickup, vehicleType) => {
         throw new Error('No active captains available nearby');
     }
 
-    const destinations = captains.map((captain) => ({
-        lng: captain.location.lng,
-        ltd: captain.location.ltd
+    const captainsWithLocation = captains.filter((captain) => {
+        const coords = captain.location?.coordinates;
+        return Array.isArray(coords)
+            && coords.length >= 2
+            && typeof coords[0] === 'number'
+            && typeof coords[1] === 'number';
+    });
+
+    if (!captainsWithLocation.length) {
+        throw new Error('No captains with valid location coordinates available');
+    }
+
+    const destinations = captainsWithLocation.map((captain) => ({
+        lng: captain.location.coordinates[0],
+        ltd: captain.location.coordinates[1]
     }));
 
     const matrix = await mapService.getDistanceTimeMatrix(pickupCoords, destinations);
     const distances = matrix.distances[0];
     const durations = matrix.durations[0];
 
-    return captains.map((captain, index) => ({
+    return captainsWithLocation.map((captain, index) => ({
         captain,
         distance: distances[index + 1] / 1000,
         duration: durations[index + 1] / 60

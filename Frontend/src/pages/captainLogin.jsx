@@ -34,7 +34,7 @@ const submitHandler = async (e) => {
     setPassword('');
 };
   return (
-    <div className='p-7 h-screen flex flex-col justify-between'>
+    <div className='p-7 h-screen flex flex-col justify-between md:max-w-lg md:mx-auto md:my-12 md:rounded-[2rem] md:bg-white md:shadow-xl md:px-10 md:py-10'>
       <div>
         <img className='w-20 mb-3' src="https://www.svgrepo.com/show/505031/uber-driver.svg" alt="" />
 
