@@ -5,16 +5,17 @@ const WaitingForDriver = ({ status, ride, onClose }) => {
     if (status === 'accepted') {
       return (
         <>
-          <div className='mb-4'>
-            <h3 className='text-2xl font-semibold'>Driver accepted your ride</h3>
-            <p className='text-sm text-gray-600 mt-2'>Share this OTP with your driver when they arrive.</p>
-          </div>
-          <div className='flex items-center justify-between'>
-            <div>
-              <h2 className='text-lg font-medium'>{ride?.captain?.name || 'Driver'}</h2>
-              <p className='text-sm text-gray-600'>{ride?.captain?.vehicle || ''} · {ride?.captain?.plate || ''}</p>
+          <div className='flex items-center justify-between mt-4'>
+            <img className='h-12' src="https://swyft.pl/wp-content/uploads/2023/05/how-many-people-can-a-uberx-take.jpg" alt="Vehicle" />
+            <div className='text-right'>
+              <h2 className='text-lg font-medium capitalize'>{ride?.captain?.name || 'Driver'}</h2>
+              <h4 className='text-xl font-semibold -mt-1 -mb-1'>{ride?.captain?.plate || 'AB 12 CD 3456'}</h4>
+              <p className='text-sm text-gray-600'>{ride?.captain?.vehicle || 'Car'}</p>
             </div>
-            <div className='rounded-xl bg-black px-4 py-3 text-white text-sm font-semibold'>OTP {ride?.otp ?? '----'}</div>
+          </div>
+          <div className='flex flex-col items-center justify-center my-5 p-4 bg-gray-100 rounded-xl border-2 border-gray-200'>
+            <p className='text-gray-600 font-medium mb-1'>Share this OTP with your driver</p>
+            <h3 className='text-4xl font-bold tracking-[0.5em] text-green-600'>{ride?.otp ?? '----'}</h3>
           </div>
         </>
       )
@@ -23,16 +24,16 @@ const WaitingForDriver = ({ status, ride, onClose }) => {
     if (status === 'started') {
       return (
         <>
-          <div className='mb-4'>
-            <h3 className='text-2xl font-semibold'>Ride started</h3>
-            <p className='text-sm text-gray-600 mt-2'>Your driver is on the way.</p>
-          </div>
-          <div className='flex items-center justify-between'>
-            <div>
-              <h2 className='text-lg font-medium'>{ride?.captain?.name || 'Driver'}</h2>
-              <p className='text-sm text-gray-600'>{ride?.captain?.vehicle || ''} · {ride?.captain?.plate || ''}</p>
+          <div className='flex items-center justify-between mt-4 mb-5'>
+            <img className='h-12' src="https://swyft.pl/wp-content/uploads/2023/05/how-many-people-can-a-uberx-take.jpg" alt="Vehicle" />
+            <div className='text-right'>
+              <h2 className='text-lg font-medium capitalize'>{ride?.captain?.name || 'Driver'}</h2>
+              <h4 className='text-xl font-semibold -mt-1 -mb-1'>{ride?.captain?.plate || 'AB 12 CD 3456'}</h4>
+              <p className='text-sm text-gray-600'>{ride?.captain?.vehicle || 'Car'}</p>
             </div>
-            <div className='rounded-xl bg-emerald-100 px-4 py-3 text-emerald-800 text-sm font-semibold'>In progress</div>
+          </div>
+          <div className='w-full flex justify-center mb-5'>
+            <div className='rounded-xl bg-emerald-100 px-6 py-2 text-emerald-800 text-lg font-semibold w-full text-center'>Ride in progress</div>
           </div>
         </>
       )
