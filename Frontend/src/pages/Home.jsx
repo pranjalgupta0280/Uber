@@ -25,7 +25,7 @@ const Home = () => {
     const [rideStatus, setRideStatus] = useState('idle')
     const [isConfirmingRide, setIsConfirmingRide] = useState(false)
     const [apiError, setApiError] = useState(null)
-    
+
     // New States for Backend Integration
     const [pickupSuggestions, setPickupSuggestions] = useState([])
     const [destinationSuggestions, setDestinationSuggestions] = useState([])
@@ -207,7 +207,7 @@ const Home = () => {
     return (
         <div className='h-screen relative overflow-hidden'>
             <img className='w-16 absolute left-5 top-5' src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png" alt="" />
-            
+
             <div className='h-screen w-screen'>
                 <img className='h-full w-full object-cover' src="https://miro.medium.com/v2/resize:fit:1400/0*gwMx05pqII5hbfmX.gif" alt="" />
             </div>
@@ -218,7 +218,7 @@ const Home = () => {
                         <i className="ri-arrow-down-wide-fill"></i>
                     </h5>
                     <h4 className='text-2xl font-semibold'>Find a trip</h4>
-                    
+
                     <form className='relative py-3' onSubmit={submitHandler}>
                         <div className="line absolute h-16 w-1 top-[45%] -translate-y-1/2 left-5 bg-gray-700 rounded-full"></div>
                         <input
@@ -261,18 +261,11 @@ const Home = () => {
             <div ref={vehiclePanelRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-10 pt-12 md:mx-auto md:w-[92%] md:max-w-3xl md:rounded-t-4xl md:shadow-2xl'>
                 <VehiclePanel setVehicleType={setVehicleType} fare={fare} setConfirmRidePanel={setConfirmRidePanel} setVehiclePanel={setVehiclePanel} />
             </div>
-            
+
             <div ref={confirmRidePanelRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6 pt-12 md:mx-auto md:w-[92%] md:max-w-3xl md:rounded-t-4xl md:shadow-2xl'>
                 <ConfirmRide
                 vehicleType={vehicleType}
                 fare={fare}
-                pickup={pickup}
-                destination={destination}
-                setConfirmRidePanel={setConfirmRidePanel}
-                setVehicleFound={setVehicleFound}
-                onConfirm={confirmRide}
-                isProcessing={isConfirmingRide}
-                error={apiError}
             />
             </div>
 
@@ -291,5 +284,3 @@ const Home = () => {
         </div>
     )
 }
-
-export default Home
